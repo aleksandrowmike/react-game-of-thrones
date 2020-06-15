@@ -1,20 +1,44 @@
 import React, {Component} from 'react';
-import './itemList.css';
-export default class ItemList extends Component {
+import {ListGroup, ListGroupItem} from 'reactstrap';
+import Spinner from "../spinner";
 
+import './itemList.css';
+
+export default class ItemList extends Component {
+    state = {
+        itemList: null
+    }
+    componentDidMount() {
+        const {getData} = this.props;
+        getData()
+            .then((itemList) => {
+                this.setState({itemList});
+            });
+    }
+    renderItems(arr) {
+        return arr.map((item) => {
+            const {id} = item;
+            const label = this.props.renderItem(item);
+            return (
+                <ListGroupItem
+                    key={id}
+                    onClick={() => this.props.onItemSelected(id)}
+                >
+                    {label}
+                </ListGroupItem>
+            );
+        });
+    }
     render() {
+        const {itemList} = this.state;
+        if(!itemList) {
+            return <Spinner />
+        }
+        const items = this.renderItems(itemList);
         return (
-            <ul className="item-list list-group">
-                <li className="list-group-item">
-                    John Snow
-                </li>
-                <li className="list-group-item">
-                    Brandon Stark
-                </li>
-                <li className="list-group-item">
-                    Geremy
-                </li>
-            </ul>
+            <ListGroup className="item-list">
+                {items}
+            </ListGroup>
         );
     }
 }
